@@ -3,12 +3,12 @@
 
 static int __init hello_init(void)
 {
-  printk(KERN_INFO "Hello World¥n");
+  printk(KERN_INFO "Hello World\n");
   return 0;
 }
 static void __exit hello_exit(void)
 {
-  printk(KERN_INFO "Bye World¥n");
+  printk(KERN_INFO "Bye World\n");
   return;
 }
 
