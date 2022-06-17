@@ -4,32 +4,30 @@
 
 inline bool gpio_is_valid(int gpionumber);
 int gpio_request(unsigned gpionumber, const char *label);
+inline int gpio_direction_output(unsigned gpionumber, int value);
+inline void gpio_set_value(unsigned gpionumber, int value);
 
-static int init_gpio(void)
+static int init_gpio(int gpionumber)
 {
   //gpio_is_valid　GIPOの23,24ピンを確認する
   // gpio_request をする
 
-  int gpionumber23 = 23;
-  int gpionumber24 = 24;
-  bool PinCheck23 = false;
-  bool PinCheck24 = false;
+  int pinRequest = 0;
+  bool PinCheck = false;
 
-  PinCheck23 = gpio_is_valid(gpionumber);
+  PinCheck = gpio_is_valid(gpionumber);
   if (PinCheck23)
   {
-    printk(KERN_INFO "gpio is used by other program23\n");
+    printk(KERN_INFO "gpio cant used %d\n", gpionumber);
     return 1;
   }
-  gpio_request(gpionumber23, "sysfs");
 
-  PinCheck24 = gpio_is_valid(gpionumber24);
-  if (PinCheck24)
+  pinRequest = gpio_request(gpionumber, "sysfs");
+  if (pinRequest)
   {
-    printk(KERN_INFO "gpio is used by other program24\n");
-    return 1;
+    printk(KERN_INFO "gpio is used by other program %d\n", gpionumber);
   }
-  gpio_request(gpionumber24, "sysfs");
+
   return 0:
 }
 
@@ -37,7 +35,7 @@ static int __init hello_init(void)
 {
   printk(KERN_INFO "Hello World\n");
 
-  int initStatus = init_gpio();
+  int initStatus = init_gpio(23);
   if (initStatus)
   {
     printk(KERN_INFO "check GPIO \n");
