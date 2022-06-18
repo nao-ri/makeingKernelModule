@@ -1,7 +1,7 @@
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/gpio.h>
-#include <delay.h>
+#include <linux/delay.h>
 
 /*
 inline bool gpio_is_valid(int gpionumber);
@@ -20,10 +20,10 @@ static int init_gpio(int gpionumber)
   bool PinCheck = false;
 
   PinCheck = gpio_is_valid(gpionumber);
-  if (PinCheck23)
+  if (PinCheck)
   {
-    printk(KERN_INFO "gpio cant used %d\n", gpionumber);
-    return 1;
+    printk(KERN_INFO "gpio can used %d\n", gpionumber);
+    // return 1;
   }
 
   pinRequest = gpio_request(gpionumber, "sysfs");
@@ -32,13 +32,14 @@ static int init_gpio(int gpionumber)
     printk(KERN_INFO "gpio is used by other program %d\n", gpionumber);
   }
 
-  return 0:
+  return 0;
 }
 
 static int startGpio(void)
 {
   //32bit文　0を送信　
-  for (int i = 0; i < 32; i++)
+  int i;
+  for (i = 0; i < 32; i++)
   {
     gpio_set_value(23, 0);
     gpio_set_value(24, 1);
@@ -56,19 +57,20 @@ static int sendBit(int bitValue)
   ndelay(500);
   gpio_set_value(24, 0);
   ndelay(500);
+  return 0;
 }
 
 static int sendbyte(int byteValue)
 {
   //ビットシフトして、値を取り出す、そしてsendbitを呼ぶ
-  int sendValue for (int i = 0; i < 8; i++)
+  int i, sendValue;
+  for (i = 0; i < 8; i++)
   {
     byteValue = byteValue << i;
     sendValue = byteValue & 0x01;
     sendBit(sendValue);
   }
-
-  byteValue >> i
+  return 0;
 }
 
 static int setColorGpio(int brightness)
@@ -78,7 +80,7 @@ static int setColorGpio(int brightness)
   return result;
 }
 
-static int __init hello_init(void)
+static int __init controlMain_init(void)
 {
   printk(KERN_INFO "Hello World\n");
 
@@ -95,14 +97,21 @@ static int __init hello_init(void)
 
   startGpio();
   sendbyte(setColorGpio(2));
-  for (int i = 0; i < 8; i++)
+  int i;
+  for (i = 0; i < 8; i++)
   {
-    sendbyte();
+    printk(KERN_INFO "color setting \n");
+    sendbyte(setColorGpio(30));
+    sendbyte(100);
+    sendbyte(100);
+    sendbyte(100);
   }
   //end send LED setting
-  for (int i = 0; i < 32; i++)
+  int i3;
+  for (i3 = 0; i3 < 32; i3++)
   {
-    sendbyte(1);
+    printk(KERN_INFO "end \n");
+    sendBit(1);
   }
   return 0;
 }
@@ -116,7 +125,7 @@ static void __exit hello_exit(void)
   return;
 }
 
-module_init(hello_init);
+module_init(controlMain_init);
 module_exit(hello_exit);
 
 MODULE_LICENSE("GPL v2");
