@@ -31,6 +31,7 @@ __used __section("__versions") = {
 	{ 0x47229b5c, "gpio_request" },
 	{ 0xccafb328, "gpio_to_desc" },
 	{ 0xeae3dfd6, "__const_udelay" },
+	{ 0xa6c9ad80, "gpiod_direction_output_raw" },
 	{ 0x92997ed8, "_printk" },
 	{ 0xfe990052, "gpio_free" },
 	{ 0x6198b2d8, "gpiod_set_raw_value" },
@@ -39,4 +40,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "C68EF0A741276541130D360");
+MODULE_INFO(srcversion, "C2267E3EC3A1C8B37A7417F");

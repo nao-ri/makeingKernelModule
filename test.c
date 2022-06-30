@@ -33,7 +33,23 @@ static int sendbyte(int byteValue)
     sendValue = byteValue >> i & 1;
     //sendBit(sendValue);
 
-    printf("%d\n", sendValue);
+    printf("%x\n", sendValue);
+  }
+  return 0;
+}
+
+static int startGpio(void)
+{
+  //32bit文　0を送信　
+  int i;
+  for (i = 0; i < 32; i++)
+  {
+    // gpio_set_value(23, 0);
+    // gpio_set_value(24, 1);
+    // ndelay(500);
+    // gpio_set_value(24, 0);
+    // ndelay(500);
+    printf("%d\n", i + 1);
   }
   return 0;
 }
@@ -43,10 +59,12 @@ int main(void)
   unsigned int i = 23;
   gpio(i);
   gpioInt(i);
-  sendbyte(15);
+  sendbyte(16);
   int x, y, result;
   x = 14;
   y = 0x0;
   result = x | y;
   printf("%x", result);
+
+  startGpio();
 }
