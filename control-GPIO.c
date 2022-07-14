@@ -98,13 +98,18 @@ static int endSendGpio(void)
   return 0;
 }
 
+static in chardev_open(struct inode *inode, struct file *filp)
+{
+  printk(KERN_INFO "Device opens¥n");
+}
+
 static int __init controlMain_init(void)
 {
   int initStatus;
-  int buleColor = 100, greenColor = 100, RedColor = 100；
-  module_param（buleColor, int,S_IRUGO);
-  module_param（greenColor, int,S_IRUGO);
-  module_param（RedColor, int,S_IRUGO);
+  int buleColor = 100, greenColor = 100, redColor = 100;
+  // module_param(buleColor, int, S_IRUGO);
+  // module_param(greenColor, int, S_IRUGO);
+  // module_param(redColor, int, S_IRUGO);
 
   printk(KERN_INFO "Hello World\n");
 
@@ -128,7 +133,7 @@ static int __init controlMain_init(void)
     sendbyte(setColorGpio(30));
     sendbyte(buleColor);  //bule
     sendbyte(greenColor); //green
-    sendbyte(RedColor);   //red
+    sendbyte(redColor);   //red
   }
 
   //end send LED setting
