@@ -98,11 +98,6 @@ static int endSendGpio(void)
   return 0;
 }
 
-static in chardev_open(struct inode *inode, struct file *filp)
-{
-  printk(KERN_INFO "Device opens¥n");
-}
-
 static int __init controlMain_init(void)
 {
   int initStatus;

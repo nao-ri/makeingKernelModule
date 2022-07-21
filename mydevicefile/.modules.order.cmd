@@ -1,0 +1,1 @@
+cmd_/home/kernel-build/makingKernelMod/mydevicefile/modules.order := {   echo /home/kernel-build/makingKernelMod/mydevicefile/deviceFile.ko; :; } | awk '!x[$$0]++' - > /home/kernel-build/makingKernelMod/mydevicefile/modules.order

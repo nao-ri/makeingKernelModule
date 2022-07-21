@@ -1,0 +1,1 @@
+cmd_/home/kernel-build/makingKernelMod/mydevicefile/deviceFile.o := aarch64-linux-gnu-ld  -EL  -maarch64elf    -r -o /home/kernel-build/makingKernelMod/mydevicefile/deviceFile.o /home/kernel-build/makingKernelMod/mydevicefile/deviceFileTest.o

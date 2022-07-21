@@ -1,0 +1,1 @@
+cmd_/home/kernel-build/makingKernelMod/mydevicefile/deviceFile.ko := aarch64-linux-gnu-ld -r  -EL  -maarch64elf  --build-id=sha1  -T scripts/module.lds -o /home/kernel-build/makingKernelMod/mydevicefile/deviceFile.ko /home/kernel-build/makingKernelMod/mydevicefile/deviceFile.o /home/kernel-build/makingKernelMod/mydevicefile/deviceFile.mod.o;  true

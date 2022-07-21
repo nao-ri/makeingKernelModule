@@ -268,4 +268,5 @@ control-GPIO.o: /home/kernel-build/makingKernelMod/control-GPIO.c \
  include/linux/pinctrl/devinfo.h include/linux/pinctrl/consumer.h \
  include/linux/pinctrl/pinconf-generic.h include/linux/pinctrl/machine.h \
  include/linux/gpio/consumer.h include/linux/delay.h \
- arch/arm64/include/generated/asm/delay.h include/asm-generic/delay.h
+ arch/arm64/include/generated/asm/delay.h include/asm-generic/delay.h \
+ include/linux/cdev.h
