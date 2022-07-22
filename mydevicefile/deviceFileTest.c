@@ -21,8 +21,10 @@ struct file_oprations{
 //static uint8_t kernelbuf;
 static unsigned char kernelbuf[BUFSIZE];
 static int read_flag = 0;
+static u8 blinkt_status
 
-static int chardev_open(struct inode *inode, struct file *filp)
+    static int
+    chardev_open(struct inode *inode, struct file *filp)
 {
   printk(KERN_INFO "Device Open \n");
   // bufferを定義してfilp->private_dataにポインターを渡す
@@ -48,8 +50,10 @@ static ssize_t chardev_read(struct file *filp, char __user *buff, size_t count, 
   {
     count = 256;
   }
+
   unsigned long read_num = copy_to_user(buff, kernelbuf, count); //ok:0 Bad:cant copy num
   printk(KERN_INFO "Read: count = %lu	", read_num);
+
   if (read_num != 0)
   {
     printk(KERN_INFO "read memory exchange fault\n");

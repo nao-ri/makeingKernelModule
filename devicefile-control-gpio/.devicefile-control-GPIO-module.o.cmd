@@ -1,0 +1,1 @@
+cmd_/home/kernel-build/makingKernelMod/devicefile-control-gpio/devicefile-control-GPIO-module.o := aarch64-linux-gnu-ld  -EL  -maarch64elf    -r -o /home/kernel-build/makingKernelMod/devicefile-control-gpio/devicefile-control-GPIO-module.o /home/kernel-build/makingKernelMod/devicefile-control-gpio/control-GPIO.o

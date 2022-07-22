@@ -1,0 +1,1 @@
+cmd_/home/kernel-build/makingKernelMod/devicefile-control-gpio/control-GPIO-module.mod := { echo  /home/kernel-build/makingKernelMod/devicefile-control-gpio/control-GPIO.o;  echo; } > /home/kernel-build/makingKernelMod/devicefile-control-gpio/control-GPIO-module.mod
