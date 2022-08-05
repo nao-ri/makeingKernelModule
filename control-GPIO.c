@@ -101,8 +101,8 @@ static int endSendGpio(void)
 static int __init controlMain_init(void)
 {
   int initStatus;
-  int buleColor = 100, greenColor = 100, redColor = 100;
-  // module_param(buleColor, int, S_IRUGO);
+  int blueColor = 100, greenColor = 100, redColor = 100;
+  // module_param(blueColor, int, S_IRUGO);
   // module_param(greenColor, int, S_IRUGO);
   // module_param(redColor, int, S_IRUGO);
 
@@ -126,7 +126,7 @@ static int __init controlMain_init(void)
   {
     printk(KERN_INFO "color setting \n");
     sendbyte(setColorGpio(30));
-    sendbyte(buleColor);  //bule
+    sendbyte(blueColor);  //bule
     sendbyte(greenColor); //green
     sendbyte(redColor);   //red
   }

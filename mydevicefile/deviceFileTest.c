@@ -21,10 +21,9 @@ struct file_oprations{
 //static uint8_t kernelbuf;
 static unsigned char kernelbuf[BUFSIZE];
 static int read_flag = 0;
-static u8 blinkt_status
+static u8 blinkt_status;
 
-    static int
-    chardev_open(struct inode *inode, struct file *filp)
+static int chardev_open(struct inode *inode, struct file *filp)
 {
   printk(KERN_INFO "Device Open \n");
   // bufferを定義してfilp->private_dataにポインターを渡す

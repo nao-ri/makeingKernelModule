@@ -7,3 +7,9 @@ http://wisdom.sakura.ne.jp/programming/cs/cs7.html
 
 # ラズパイへのファイル送信
 sudo scp deviceFile.ko nao-ri@192.168.1.1:/home/nao-ri
+
+# network設定
+sudo ifconfig en7 192.168.1.2/2
+
+# デバイスファイルを作成
+mknod NAME TYPE MAJOR MINOR
