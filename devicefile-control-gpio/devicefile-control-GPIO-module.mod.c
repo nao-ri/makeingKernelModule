@@ -41,6 +41,7 @@ __used __section("__versions") = {
 	{ 0xa6c9ad80, "gpiod_direction_output_raw" },
 	{ 0x7643628b, "cdev_add" },
 	{ 0x6cbbfc54, "__arch_copy_to_user" },
+	{ 0x8da6585d, "__stack_chk_fail" },
 	{ 0x92997ed8, "_printk" },
 	{ 0xfe990052, "gpio_free" },
 	{ 0x6198b2d8, "gpiod_set_raw_value" },
@@ -49,4 +50,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "22D2D82B34C8E60C720CF29");
+MODULE_INFO(srcversion, "019CE1DE16279C4CB4BE75E");
