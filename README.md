@@ -19,3 +19,7 @@ mknod NAME TYPE MAJOR MINOR
 echo '0:0f'|xxd -r > hello
 # read 1byte
 od -x -N 1 ./hello
+
+
+# mutex_test 
+./flicker ./blinktdev1 50 &./flicker ./blinktdev2 50 & ./flicker ./blinktdev3 50 &./flicker ./blinktdev4 50 &./flicker ./blinktdev5 50 &./flicker ./blinktdev6 50 &./flicker ./blinktdev7 50 &./flicker ./blinktdev8 50

@@ -8,6 +8,7 @@
 #include <linux/cdev.h>    //cdev
 #include <linux/uaccess.h> //copy_to_user copy_from_user
 #include <linux/types.h>   // uint8_t
+#include <linux/mutex.h>
 #define BUFSIZE 256
 
 /*
@@ -20,7 +21,7 @@ void gpio_free(unsigned gpionumber);
 static int init_gpio(int);
 static int startGpio(void);
 static int sendBit(int);
-
+static DEFINE_MUTEX(my_mutex);
 /*ロード時（insmod)に呼ばれる
 使用する23,24ピンGPIOの疎通チェック->使用予約*/
 static int init_gpio(int gpionumber)
@@ -151,6 +152,7 @@ static int write_control_blinkt(u8 blinkt_status)
 
 static int chardev_open(struct inode *inode, struct file *filp)
 {
+
   printk(KERN_INFO "Device Open \n");
   // bufferを定義してfilp->private_dataにポインターを渡す
   // char buf[BUFSIZE];
@@ -166,6 +168,10 @@ static int chardev_open(struct inode *inode, struct file *filp)
 
 static ssize_t chardev_read(struct file *filp, char __user *buff, size_t count, loff_t *offp)
 {
+  if (mutex_lock_interruptible(&my_mutex) != 0)
+  {
+    printk(KERN_INFO "pushed ctrl C ");
+  }
   printk(KERN_INFO "Device Read \n");
   printk(KERN_INFO "Read count =%ld", count);
   size_t countnum = count;
@@ -218,6 +224,7 @@ static ssize_t chardev_read(struct file *filp, char __user *buff, size_t count, 
     {
       read_flag = 1;
     }
+    mutex_unlock(&my_mutex);
   }
 
   printk(KERN_INFO "Device readed %s\n", kernelbuf);
@@ -227,6 +234,7 @@ static ssize_t chardev_read(struct file *filp, char __user *buff, size_t count, 
 // loff_t *offpって何？　開いているファイルの基準値でいいの？
 static ssize_t chardev_write(struct file *filp, const char __user *buff, size_t count, loff_t *offp)
 {
+
   unsigned long write_num;
   //排他制御回
 
@@ -234,7 +242,7 @@ static ssize_t chardev_write(struct file *filp, const char __user *buff, size_t 
   // kokko
   printk(KERN_INFO "debuging write1   \n");
   int minor = (int)filp->private_data;
-  u8 switchPlace;
+  u8 switchPlace = 0x01;
   u8 switchedValue;
   printk(KERN_INFO "debuging write2  %d \n", minor);
   if (minor)
@@ -244,17 +252,19 @@ static ssize_t chardev_write(struct file *filp, const char __user *buff, size_t 
 
     u8 switchValue; // 0 or 1
     write_num = copy_from_user(&switchValue, buff, count);
-    printk(KERN_INFO "debuging write3  %d \n", minor);
+    printk(KERN_INFO "debuging write3  %d \n", switchValue);
     /*デバイスファイルに対応した　操作したいLEDの場所のビットを立てる*/
     if (switchValue)
     {
-      printk(KERN_INFO, "switch-On-Place: %d ", minor);
-      switchPlace = switchValue << minor - 1;
-      switchPlace = kernelbuf[0] | switchValue;
+      printk(KERN_INFO "debuging write4  %d \n", switchValue);
+      printk(KERN_INFO, "switch-On-Place:%d\n", minor);
+      switchPlace = switchPlace << minor - 1;
+      // switchPlace = kernelbuf[0] | switchValue;
     }
     else
     {
-      printk(KERN_INFO, "switch-Off-Place: %d ", minor);
+      printk(KERN_INFO "debuging write5  %d \n", switchValue);
+      printk(KERN_INFO, "switch-Off-Place:%d\n", minor);
       switchPlace = 0x01;
       switchPlace = switchPlace << minor - 1;
     }
@@ -262,28 +272,20 @@ static ssize_t chardev_write(struct file *filp, const char __user *buff, size_t 
     /*デバイスファイルに対応した　操作したいLEDの場所のビットを操作する*/
     if (switchValue)
     {
-      printk(KERN_INFO, "switch-On-control: %d ", minor);
+      printk(KERN_INFO "debuging write6 %d \n", switchValue);
+      printk(KERN_INFO, "switch-On-control: %da\n", minor);
       // swich On -> OR
       switchedValue = kernelbuf[0] | switchPlace;
     }
     else
     {
-      printk(KERN_INFO, "switch-Off-control: %d ", minor);
+      printk(KERN_INFO "debuging write7 %d \n", switchValue);
+      printk(KERN_INFO, "switch-Off-control: %d \n", minor);
       // switch off →XOR（反転、AND）
       switchPlace = ~switchPlace;
       switchedValue = kernelbuf[0] & switchPlace;
     }
     kernelbuf[0] = switchedValue;
-
-    // /*デバイスファイルに対応した　操作したいLEDの場所のビットを立ているか確認*/
-    // printk(KERN_INFO, "switchPlace: %d ", minor)
-
-    //  write_num = copy_to_user(switchValue, buff, count);
-    //  if (read_num != 0)
-    //  {
-    //    printk(KERN_INFO "read memory exchange fault\n");
-    //    return -EFAULT; // need cheak
-    //  }
   }
   else
   {
@@ -302,6 +304,7 @@ static ssize_t chardev_write(struct file *filp, const char __user *buff, size_t 
   // echo等の入力をblinktに渡す
   printk(KERN_INFO "kernelbuf[0] = %d", kernelbuf[0]);
   write_control_blinkt(kernelbuf[0]);
+  mutex_unlock(&my_mutex);
 
   printk(KERN_INFO "write: count = %lu", write_num);
   printk(KERN_INFO "Device written %s\n", kernelbuf);

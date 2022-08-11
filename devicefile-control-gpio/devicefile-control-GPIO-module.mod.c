@@ -36,8 +36,10 @@ __used __section("__versions") = {
 	{ 0xccafb328, "gpio_to_desc" },
 	{ 0x56470118, "__warn_printk" },
 	{ 0xeae3dfd6, "__const_udelay" },
+	{ 0x3213f038, "mutex_unlock" },
 	{ 0x6091b333, "unregister_chrdev_region" },
 	{ 0xdcb764ad, "memset" },
+	{ 0x89940875, "mutex_lock_interruptible" },
 	{ 0xa6c9ad80, "gpiod_direction_output_raw" },
 	{ 0x7643628b, "cdev_add" },
 	{ 0x6cbbfc54, "__arch_copy_to_user" },
@@ -50,4 +52,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "019CE1DE16279C4CB4BE75E");
+MODULE_INFO(srcversion, "727461FE10734DD89754B0D");
