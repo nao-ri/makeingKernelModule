@@ -13,3 +13,9 @@ sudo ifconfig en7 192.168.1.2/2
 
 # デバイスファイルを作成
 mknod NAME TYPE MAJOR MINOR
+
+# rapi
+# write
+echo '0:0f'|xxd -r > hello
+# read 1byte
+od -x -N 1 ./hello
