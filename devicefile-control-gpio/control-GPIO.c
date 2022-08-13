@@ -11,6 +11,8 @@
 #include <linux/mutex.h>
 #define BUFSIZE 256
 
+/*あとは、mutexでの点滅速度と強制終了の変更*/
+
 /*
 inline bool gpio_is_valid(int gpionumber);
 int gpio_request(unsigned gpionumber, const char *label);
@@ -168,10 +170,7 @@ static int chardev_open(struct inode *inode, struct file *filp)
 
 static ssize_t chardev_read(struct file *filp, char __user *buff, size_t count, loff_t *offp)
 {
-  if (mutex_lock_interruptible(&my_mutex) != 0)
-  {
-    printk(KERN_INFO "pushed ctrl C ");
-  }
+
   printk(KERN_INFO "Device Read \n");
   printk(KERN_INFO "Read count =%ld", count);
   size_t countnum = count;
@@ -180,6 +179,7 @@ static ssize_t chardev_read(struct file *filp, char __user *buff, size_t count, 
   printk(KERN_INFO "debuging read\n");
   int minor = (int)filp->private_data;
   printk(KERN_INFO "debuging read1 %d \n", minor);
+
   if (minor)
   {
     printk(KERN_INFO "debuging read2 if minor >0 %d\n ", minor);
@@ -224,7 +224,7 @@ static ssize_t chardev_read(struct file *filp, char __user *buff, size_t count, 
     {
       read_flag = 1;
     }
-    mutex_unlock(&my_mutex);
+    // mutex_unlock(&my_mutex);
   }
 
   printk(KERN_INFO "Device readed %s\n", kernelbuf);
@@ -234,6 +234,11 @@ static ssize_t chardev_read(struct file *filp, char __user *buff, size_t count, 
 // loff_t *offpって何？　開いているファイルの基準値でいいの？
 static ssize_t chardev_write(struct file *filp, const char __user *buff, size_t count, loff_t *offp)
 {
+  if (mutex_lock_interruptible(&my_mutex) != 0)
+  {
+    printk(KERN_INFO "pushed ctrl C ");
+    return -1;
+  }
 
   unsigned long write_num;
   //排他制御回
@@ -242,9 +247,10 @@ static ssize_t chardev_write(struct file *filp, const char __user *buff, size_t 
   // kokko
   printk(KERN_INFO "debuging write1   \n");
   int minor = (int)filp->private_data;
-  u8 switchPlace = 0x01;
+  u8 switchPlace;
   u8 switchedValue;
   printk(KERN_INFO "debuging write2  %d \n", minor);
+
   if (minor)
   {
     printk(KERN_INFO "debuging write2  %d \n", minor);
@@ -253,21 +259,10 @@ static ssize_t chardev_write(struct file *filp, const char __user *buff, size_t 
     u8 switchValue; // 0 or 1
     write_num = copy_from_user(&switchValue, buff, count);
     printk(KERN_INFO "debuging write3  %d \n", switchValue);
-    /*デバイスファイルに対応した　操作したいLEDの場所のビットを立てる*/
-    if (switchValue)
-    {
-      printk(KERN_INFO "debuging write4  %d \n", switchValue);
-      printk(KERN_INFO, "switch-On-Place:%d\n", minor);
-      switchPlace = switchPlace << minor - 1;
-      // switchPlace = kernelbuf[0] | switchValue;
-    }
-    else
-    {
-      printk(KERN_INFO "debuging write5  %d \n", switchValue);
-      printk(KERN_INFO, "switch-Off-Place:%d\n", minor);
-      switchPlace = 0x01;
-      switchPlace = switchPlace << minor - 1;
-    }
+
+    /*デバイスファイルに対応した　操作したいLEDの場所のビットを動かす*/
+    switchPlace = 0x01;
+    switchPlace = switchPlace << minor - 1;
 
     /*デバイスファイルに対応した　操作したいLEDの場所のビットを操作する*/
     if (switchValue)
@@ -303,6 +298,7 @@ static ssize_t chardev_write(struct file *filp, const char __user *buff, size_t 
 
   // echo等の入力をblinktに渡す
   printk(KERN_INFO "kernelbuf[0] = %d", kernelbuf[0]);
+
   write_control_blinkt(kernelbuf[0]);
   mutex_unlock(&my_mutex);
 
