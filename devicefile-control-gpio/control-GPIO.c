@@ -8,10 +8,8 @@
 #include <linux/cdev.h>    //cdev
 #include <linux/uaccess.h> //copy_to_user copy_from_user
 #include <linux/types.h>   // uint8_t
-#include <linux/mutex.h>
-#define BUFSIZE 256
-
-/*あとは、mutexでの点滅速度と強制終了の変更*/
+#include <linux/mutex.h>   //mutex
+#define BUFSIZE 256        // kernel内のバッファの容量（byte)
 
 /*
 inline bool gpio_is_valid(int gpionumber);
@@ -20,10 +18,12 @@ inline int gpio_direction_output(unsigned gpionumber, int value);
 inline void gpio_set_value(unsigned gpionumber, int value);
 void gpio_free(unsigned gpionumber);
 */
+
 static int init_gpio(int);
 static int startGpio(void);
 static int sendBit(int);
 static DEFINE_MUTEX(my_mutex);
+
 /*ロード時（insmod)に呼ばれる
 使用する23,24ピンGPIOの疎通チェック->使用予約*/
 static int init_gpio(int gpionumber)
@@ -114,8 +114,7 @@ static int endSendGpio(void)
 // -----------copy from devicefiletest.c
 
 static unsigned char kernelbuf[BUFSIZE]; // kernelbuf[0]
-static int read_flag = 0;
-static u8 blinkt_status; // kernelbuf[0]と同じ
+static u8 blinkt_status;                 // kernelbuf[0]と同じ
 
 // writeに合わせてblinktを制御する関数を実装->writeの中に
 // blinktの制御をする関数
@@ -200,13 +199,6 @@ static ssize_t chardev_read(struct file *filp, char __user *buff, size_t count, 
   else
   {
 
-    //いらない
-    if (read_flag)
-    {
-      read_flag = 0;
-      // return 0;
-    }
-
     if (count > 256)
     {
       count = 256;
@@ -220,18 +212,13 @@ static ssize_t chardev_read(struct file *filp, char __user *buff, size_t count, 
       printk(KERN_INFO "read memory exchange fault\n");
       return -EFAULT; // need cheak
     }
-    else
-    {
-      read_flag = 1;
-    }
-    // mutex_unlock(&my_mutex);
   }
 
   printk(KERN_INFO "Device readed %s\n", kernelbuf);
   return count;
 }
 
-// loff_t *offpって何？　開いているファイルの基準値でいいの？
+// loff_t *offpって何？　開いているファイルの基準値でいいの？多分そう
 static ssize_t chardev_write(struct file *filp, const char __user *buff, size_t count, loff_t *offp)
 {
   if (mutex_lock_interruptible(&my_mutex) != 0)
@@ -307,7 +294,7 @@ static ssize_t chardev_write(struct file *filp, const char __user *buff, size_t 
   return count;
 }
 
-// release との差分は？
+// release との差分は？A.一緒
 static int chardev_close(struct inode *inode, struct file *filp)
 {
   printk(KERN_INFO "Device Close\n");
@@ -323,15 +310,16 @@ static struct file_operations chardev_fops = {
     .release = chardev_close,
 };
 
-// device fileにモジュール登録処理　udevに登録すると自動
-
-// dev_t dev0 = MKDEV(238, 0);
-//排他制御
+/*
+device fileにモジュール登録処理　udevに登録すると自動
+排他制御
+struct cdev cdev[9];だと既に構造体分のメモリ？アドレスが格納されているので、構造体内部を初期化すればいよい（cdev_init）
+逆に、struct cdev *cdev[9];では、構造体のアドレス部分しか宣言してないので、後で、malloc的な感じでメモリ確保して、構造体内部の初期化をする（alloc）
+ */
 dev_t dev[9];
+
 struct cdev cdev[9];
 // struct cdev *cdev[9];
-
-// // &cdev[1]
 
 // -----------
 
@@ -345,8 +333,6 @@ static int __init controlMain_init(void)
   blinkt_status = 0xff;
   kernelbuf[0] = 0xff;
   int i;
-
-  // &cdev[1]
 
   printk(KERN_INFO "Hello World\n");
 
@@ -384,8 +370,11 @@ static int __init controlMain_init(void)
   {
     dev[i] = MKDEV(238, i);
   }
+  /*カーネルに、デバイスファイルのメジャー番号と対応ずく数を事前通知
+  第三引数は、デバイスファイル一覧で見ることができる
+  */
   register_chrdev_region(dev[0], 9, "blinktdev");
-  //排他制御
+
   int err;
   for (i = 0; i < 9; i++)
   {
@@ -403,8 +392,10 @@ static int __init controlMain_init(void)
   // cdev[0]->ops = &chardev_fops; // need cheak &chardev_fops ?
   // err = cdev_add(cdev[0], dev[0], 1);
   // printk(KERN_INFO "%d", err);
-
-  // int err = cdev_add(cdev, dev, 1);
+  // if (err)
+  // {
+  //   printk(KERN_INFO, "cdev_add err %d", i);
+  // }
 
   //---
 
@@ -431,6 +422,7 @@ static void __exit controlMain_exit(void)
   //---- copy from devicefiletest.c
 
   unregister_chrdev_region(dev[0], 9);
+
   for (i = 0; i < 9; i++)
   {
     cdev_del(&cdev[i]);
